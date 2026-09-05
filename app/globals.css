@@ -147,7 +147,7 @@ button { border: 0; cursor: pointer; }
   width: 100vw;
   height: 100vh;
   /* Stretch to fill viewport (3508×3000). */
-  background: url("/cover1.png?v=20260803b") center center / 100% 100% no-repeat;
+  background: url("/cover1.png?v=20260803b") center center / cover no-repeat;
   opacity: 0;
 }
 .portal-cover-2 {
@@ -155,7 +155,7 @@ button { border: 0; cursor: pointer; }
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: url("/cover2.png?v=20260803b") center center / 100% 100% no-repeat;
+  background: url("/cover2.png?v=20260803b") center center / cover no-repeat;
   opacity: 0;
   clip-path: inset(0 100% 0 0);
   filter: contrast(1.12) saturate(1.05) drop-shadow(0 0 5px rgba(177, 155, 220, 0.1));
@@ -171,7 +171,7 @@ button { border: 0; cursor: pointer; }
   z-index: 3;
   width: 100vw;
   height: 100vh;
-  background: url("/cover3.png?v=20260804a") center center / 100% 100% no-repeat;
+  background: url("/cover3.png?v=20260804a") center center / cover no-repeat;
   opacity: 0;
   transform: scale(.12);
   transform-origin: center;
