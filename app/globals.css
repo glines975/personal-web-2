@@ -645,8 +645,9 @@ button { border: 0; cursor: pointer; }
   inset: 0;
   z-index: 45;
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   padding: 0;
   pointer-events: none;
   opacity: 0;
@@ -707,9 +708,12 @@ button { border: 0; cursor: pointer; }
   bottom: 16px;
 }
 .folder-rack {
+  /* Keep the 3508×3000 canvas aspect (≈1.169) so baked-in text never distorts;
+     letterbox inside the viewport with the paper color filling the rest. */
+  --rack-aspect: 3508 / 3000;
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: min(100vw, calc(100vh * var(--rack-aspect)));
+  height: min(100vh, calc(100vw / var(--rack-aspect)));
   overflow: hidden;
 }
 .folder-backdrop {
@@ -780,7 +784,7 @@ button { border: 0; cursor: pointer; }
   inset: 0;
   width: 100%;
   height: 100%;
-  /* fill keeps all 5 canvases pixel-registered */
+  /* Rack already matches the canvas aspect; fill keeps all 5 canvases pixel-registered */
   object-fit: fill;
   pointer-events: none;
   user-select: none;
