@@ -142,7 +142,7 @@ button { border: 0; cursor: pointer; }
   content: "";
   position: absolute;
   inset: -16px;
-  background: url("/cover1-paper.png?v=20260906b") center center /
+  background: url("/cover1-paper.jpg?v=20260906c") center center /
     min(100vw, calc(100vh * 2000 / 1710)) auto repeat;
   filter: blur(2px);
 }
