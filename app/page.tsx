@@ -884,19 +884,22 @@ function MapView({
         aria-hidden={!portfolioOpen}
         data-portfolio-page={portfolioPage}
       >
-        <div
-          className="folder-rack"
-          role="list"
-          onPointerLeave={() => setHoveredFolder(null)}
-        >
-          <div className="folder-backdrop" aria-hidden="true">
-            <img
-              src={activeBackdropSrc}
-              alt=""
-              className="folder-cover-img"
-              draggable={false}
-            />
-          </div>
+      <div
+        className="folder-backdrop"
+        aria-hidden="true"
+      >
+        <img
+          src={activeBackdropSrc}
+          alt=""
+          className="folder-cover-img"
+          draggable={false}
+        />
+      </div>
+      <div
+        className="folder-rack"
+        role="list"
+        onPointerLeave={() => setHoveredFolder(null)}
+      >
           <button
             type="button"
             className="portfolio-mark portfolio-mark-back"

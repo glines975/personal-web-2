@@ -652,7 +652,7 @@ button { border: 0; cursor: pointer; }
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  background: #f3efe9;
+  background: #eee8db;
   /* Instant show — folder open anim carries the entrance */
   transition: none;
 }
@@ -708,11 +708,12 @@ button { border: 0; cursor: pointer; }
   bottom: 16px;
 }
 .folder-rack {
-  /* Keep the 3508×3000 canvas aspect (≈1.169) so baked-in text never distorts;
-     letterbox inside the viewport with the paper color filling the rest.
+  /* Keep the 3508×3000 canvas aspect (≈1.169) so baked-in text never distorts.
      Both dims are literal calc chains on purpose: a var like
      --rack-aspect: 3508 / 3000 expands textually, so calc(100vw / var(...))
-     becomes two sequential divisions and collapses the rack height to ~0. */
+     becomes two sequential divisions and collapses the rack height to ~0.
+     The leftover screen area is NOT flat color — .folder-backdrop (direct
+     overlay child, cover-fit) extends the same paper art edge-to-edge. */
   width: min(100vw, calc(100vh * 3508 / 3000));
   height: min(100vh, calc(100vw * 3000 / 3508));
   position: relative;
@@ -728,6 +729,11 @@ button { border: 0; cursor: pointer; }
 }
 .portfolio-overlay.is-open .folder-backdrop {
   opacity: 1;
+}
+/* Backdrop spans the whole viewport now; cover crops paper edges instead of
+   stretching, while folder layers keep the exact canvas rectangle. */
+.folder-backdrop .folder-cover-img {
+  object-fit: cover;
 }
 .folder-layer {
   position: absolute;
