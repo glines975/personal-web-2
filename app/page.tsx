@@ -208,7 +208,7 @@ function Hud({
               : "ARCHIVE AR–01"}
       </div>
       <button
-        className="music-toggle"
+        className={`music-toggle${musicOn ? "" : " is-off"}`}
         onClick={toggleMusic}
         aria-label={musicOn ? "关闭背景音乐" : "开启背景音乐"}
         aria-pressed={musicOn}
@@ -261,11 +261,13 @@ function Portal({
   // The cover art streams in slowly on a cold CDN (cover1 alone is ~1.5MB).
   // Hold the choreography until all three covers are decoded, otherwise the
   // tiny cover2/cover3 appear before cover1 and the sequence desyncs.
+  // The paper bed is gated on the same signal so background and animation
+  // share one initial moment — no band appearing ahead of the art.
   useEffect(() => {
     let cancelled = false;
     const fallback = window.setTimeout(() => setAssetsReady(true), 9000);
     void Promise.all(
-      coverSources.map(
+      [...coverSources, `/cover1-paper-tile.jpg?v=${paperAssetVersion}`].map(
         (src) =>
           new Promise<void>((resolve) => {
             const img = new Image();
@@ -293,8 +295,9 @@ function Portal({
 
   useEffect(() => {
     if (!assetsReady || finishingRef.current) return;
-    // cover2 starts at 0.6s, runs 10.5s (last 0.5s = hold after footprints gone)
-    const COVER2_START = 600;
+    // Footprints start the moment the sheet appears (background and animation
+    // share the same initial time), run 10.5s (last 0.5s = hold after gone)
+    const COVER2_START = 0;
     const COVER2_DURATION = 10500;
     const FOOTPRINTS_END = COVER2_START + COVER2_DURATION;
     // Leah starts a bit earlier so her reveal feels faster
@@ -335,7 +338,7 @@ function Portal({
   };
 
   return (
-    <main className={`portal is-${phase}${phase === "opening" ? " is-opening" : ""}`}>
+    <main className={`portal is-${phase}${phase === "opening" ? " is-opening" : ""}${assetsReady ? " portal-is-ready" : ""}`}>
       <button
         className="sealed-scroll"
         onClick={skipOpening}
@@ -418,6 +421,7 @@ const folderPage2Themes = folderThemes.map((theme) => ({
 
 /* Portal cover art — keep the ?v= strings in sync with globals.css. */
 const coverAssetVersion = "20260906a";
+const paperAssetVersion = "20260906d";
 const coverSources = [
   `/cover1.png?v=${coverAssetVersion}`,
   `/cover2.png?v=${coverAssetVersion}`,
@@ -1313,6 +1317,27 @@ export default function Home() {
       setMusicOn(false);
     }
   };
+
+  // Browsers block play() without a user gesture, so the timer-driven start at
+  // COVER3_START silently fails on a cold load. Arm a one-shot unlock on the
+  // first pointer/keydown anywhere: it retries immediately (music starts with
+  // the animation) and arms the element for the scheduled retry too.
+  useEffect(() => {
+    if (audioUnlockedRef.current) return;
+    const unlock = () => {
+      audioUnlockedRef.current = true;
+      playMusic();
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const goTo = (next: "portal" | "map" | "about") => {
     setMenuOpen(false);

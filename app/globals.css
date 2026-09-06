@@ -95,7 +95,23 @@ button { border: 0; cursor: pointer; }
 }
 .sector-button span { font-size: 15px; font-weight: 200; }
 .music-toggle {
-  display: none !important;
+  position: absolute; top: 40px; right: 190px; z-index: 2;
+  display: grid; place-items: center; width: 34px; height: 34px; padding: 0;
+  background: rgba(14,16,23,.5); border-bottom: 1px solid var(--line);
+  color: var(--silver);
+}
+.music-toggle::before {
+  content: "";
+  display: block; width: 15px; height: 15px;
+  background: currentColor;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 18V5l12-2v13' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='6' cy='18' r='3' fill='black'/%3E%3Ccircle cx='18' cy='16' r='3' fill='black'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 18V5l12-2v13' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='6' cy='18' r='3' fill='black'/%3E%3Ccircle cx='18' cy='16' r='3' fill='black'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: .85;
+}
+.music-toggle.is-off::before {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 18V5l12-2v13' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='6' cy='18' r='3' fill='black'/%3E%3Ccircle cx='18' cy='16' r='3' fill='black'/%3E%3Cline x1='2' y1='2' x2='22' y2='22' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 18V5l12-2v13' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='6' cy='18' r='3' fill='black'/%3E%3Ccircle cx='18' cy='16' r='3' fill='black'/%3E%3Cline x1='2' y1='2' x2='22' y2='22' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: .4;
 }
 .global-menu {
   position: absolute; top: 24px; right: 24px; width: min(410px, calc(100vw - 48px)); padding: 72px 34px 30px;
@@ -137,7 +153,9 @@ button { border: 0; cursor: pointer; }
 /* Full-bleed paper bed: mirror-tiled from the flattened cover1 patch — every
    tile boundary is paper meeting its own mirror, so seams are invisible by
    construction (no visible steps, no duplicated ornament). Slight blur melts
-   the jpeg grain; the canvas keeps its full aspect on top. */
+   the jpeg grain; the canvas keeps its full aspect on top. The bed starts
+   hidden and fades in with the canvas so background and animation share the
+   same initial time (gated on assetsReady via .portal-is-ready). */
 .sealed-scroll::before {
   content: "";
   position: absolute;
@@ -145,6 +163,11 @@ button { border: 0; cursor: pointer; }
   background: url("/cover1-paper-tile.jpg?v=20260906d") center center /
     calc(min(100vw, calc(100vh * 2000 / 1710)) * 2) auto repeat;
   filter: blur(1px);
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+.portal-is-ready .sealed-scroll::before {
+  opacity: 1;
 }
 .portal.is-opening .sealed-scroll { cursor: default; }
 .portal-cover {
@@ -291,6 +314,10 @@ button { border: 0; cursor: pointer; }
     opacity: 1;
     clip-path: none;
     transform: none;
+  }
+  .sealed-scroll::before {
+    transition: none;
+    opacity: 1;
   }
 }
 
