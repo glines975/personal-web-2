@@ -121,18 +121,30 @@ button { border: 0; cursor: pointer; }
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: #dfc9a5;
+  background: #d8c298;
 }
 .sealed-scroll {
-  width: min(100vw, calc(100vh * 3508 / 3000));
-  height: min(100vh, calc(100vw * 3000 / 3508));
+  width: 100vw;
+  height: 100vh;
   position: relative;
-  background: #dfc9a5;
+  background: #d8c298;
   border: 0;
   color: #2b1107;
   transition: opacity .55s ease, background .55s ease;
   box-shadow: none;
   cursor: pointer;
+}
+/* Full-bleed paper bed: cover1 tiled at EXACTLY the art-box scale, centered —
+   the centre tile sits pixel-for-pixel under the canvas, so the sheet edges
+   dissolve into a continuous sheet of paper. Slight blur only hides the tile
+   seams; the texture scale matches, so nothing reads as a floating card. */
+.sealed-scroll::before {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  background: url("/cover1.png?v=20260906a") center center /
+    min(100vw, calc(100vh * 2000 / 1710)) auto repeat;
+  filter: blur(2px);
 }
 .portal.is-opening .sealed-scroll { cursor: default; }
 .portal-cover {
@@ -142,30 +154,22 @@ button { border: 0; cursor: pointer; }
 }
 /* Each cover keeps the FULL 3508×3000 canvas visible on any viewport: the art
    sits in a centered box matching the canvas aspect (wide screens no longer
-   crop the footsteps/ornaments), and cover1 extends its own paper as a blurred
-   wash so the leftover frame is textured paper, not blank color. cover2/3
-   boxes stay transparent and pixel-register over cover1's box. The art box is
-   inset by a safety pad so trail ink never touches the viewport edge. */
-.portal-cover-1::before,
+   crop the footsteps/ornaments), and the paper bed behind extends that same
+   canvas to the screen edges. cover2/3 boxes stay transparent and
+   pixel-register over cover1's box. No crop, no distortion, no flat margins. */
 .portal-cover-1::after,
 .portal-cover-2::after,
 .portal-cover-3::after {
-  --portal-pad: clamp(24px, 4vw, 64px);
   content: "";
   position: absolute;
-}
-.portal-cover-1::before {
-  inset: -60px;
-  background: url("/cover1.png?v=20260906a") center center / cover no-repeat;
-  filter: blur(22px);
 }
 .portal-cover-1::after,
 .portal-cover-2::after,
 .portal-cover-3::after {
   left: 50%;
   top: 50%;
-  width: calc(min(100vw, calc(100vh * 2000 / 1710)) - var(--portal-pad, 0px) * 2);
-  height: calc(min(100vh, calc(100vw * 1710 / 2000)) - var(--portal-pad, 0px) * 2);
+  width: min(100vw, calc(100vh * 2000 / 1710));
+  height: min(100vh, calc(100vw * 1710 / 2000));
   transform: translate(-50%, -50%);
 }
 .portal-cover-1 {
@@ -174,7 +178,6 @@ button { border: 0; cursor: pointer; }
 }
 .portal-cover-1::after {
   background: url("/cover1.png?v=20260906a") center center / 100% 100% no-repeat;
-  box-shadow: 0 0 44px rgba(82, 52, 26, 0.32);
 }
 .portal-cover-2 {
   z-index: 2;
