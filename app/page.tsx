@@ -244,10 +244,55 @@ function Portal({
   const [phase, setPhase] = useState<"cover" | "ready" | "zooming" | "opening">("cover");
   const [cover2Visible, setCover2Visible] = useState(false);
   const [cover3Visible, setCover3Visible] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
   const timersRef = useRef<number[]>([]);
   const finishingRef = useRef(false);
 
+  // Latest callbacks via refs so the timing effect below runs exactly once.
+  const onEnterRef = useRef(onEnter);
+  const onUnlockRef = useRef(onUnlock);
+  const onOpeningRef = useRef(onOpening);
   useEffect(() => {
+    onEnterRef.current = onEnter;
+    onUnlockRef.current = onUnlock;
+    onOpeningRef.current = onOpening;
+  });
+
+  // The cover art streams in slowly on a cold CDN (cover1 alone is ~1.5MB).
+  // Hold the choreography until all three covers are decoded, otherwise the
+  // tiny cover2/cover3 appear before cover1 and the sequence desyncs.
+  useEffect(() => {
+    let cancelled = false;
+    const fallback = window.setTimeout(() => setAssetsReady(true), 9000);
+    void Promise.all(
+      coverSources.map(
+        (src) =>
+          new Promise<void>((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            img.src = src;
+          }),
+      ),
+    ).then(() => {
+      if (cancelled) return;
+      window.clearTimeout(fallback);
+      setAssetsReady(true);
+      // Use the ~11s intro to warm the map layers so the first map frame is
+      // complete instead of castles floating over blank paper.
+      ["/footprint.png", "/overlay.png"].forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
+    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(fallback);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!assetsReady || finishingRef.current) return;
     // cover2 starts at 0.6s, runs 10.5s (last 0.5s = hold after footprints gone)
     const COVER2_START = 600;
     const COVER2_DURATION = 10500;
@@ -260,17 +305,17 @@ function Portal({
       window.setTimeout(() => setCover3Visible(true), COVER3_START),
       window.setTimeout(() => setPhase("ready"), COVER3_START),
       // Music starts when cover3 appears
-      window.setTimeout(onUnlock, COVER3_START),
+      window.setTimeout(() => onUnlockRef.current(), COVER3_START),
       // Switch after footprints finish + 0.5s end hold baked into cover2
-      window.setTimeout(onOpening, FOOTPRINTS_END),
-      window.setTimeout(onEnter, FOOTPRINTS_END + 200),
+      window.setTimeout(() => onOpeningRef.current(), FOOTPRINTS_END),
+      window.setTimeout(() => onEnterRef.current(), FOOTPRINTS_END + 200),
     ];
     timersRef.current = timers;
     return () => {
       timers.forEach((id) => window.clearTimeout(id));
       timersRef.current = [];
     };
-  }, []);
+  }, [assetsReady]);
 
   const finishToMap = (delayMs: number) => {
     if (finishingRef.current) return;
@@ -278,9 +323,9 @@ function Portal({
     timersRef.current.forEach((id) => window.clearTimeout(id));
     timersRef.current = [];
     setPhase("opening");
-    onUnlock();
-    onOpening();
-    window.setTimeout(onEnter, delayMs);
+    onUnlockRef.current();
+    onOpeningRef.current();
+    window.setTimeout(() => onEnterRef.current(), delayMs);
   };
 
   // Click anytime during the opening sequence to skip into the map.
@@ -296,7 +341,10 @@ function Portal({
         onClick={skipOpening}
         aria-label="点击跳过开场，进入主页"
       >
-        <span className="portal-cover portal-cover-1 is-visible" aria-hidden="true" />
+        <span
+          className={`portal-cover portal-cover-1${assetsReady ? " is-visible" : ""}`}
+          aria-hidden="true"
+        />
         <span className={`portal-cover portal-cover-2 ${cover2Visible ? "is-visible" : ""}`} aria-hidden="true" />
         <span className={`portal-cover portal-cover-3 ${cover3Visible ? "is-visible" : ""}`} aria-hidden="true" />
       </button>
@@ -315,7 +363,7 @@ function BuildingGlyph({ shape }: { shape: string }) {
   );
 }
 
-const castleAssetVersion = "20260801b";
+const castleAssetVersion = "20260906a";
 
 const mapCastles = [
   {
@@ -350,7 +398,7 @@ const mapCastles = [
 /* portfolio cover1–5 share one 3508×3000 canvas; transparent gaps + left-on-top z-order
    recreate portfolio cover.png. Hit strips are the exclusive visible columns L→R.
    cover6 sits behind as the archive backdrop. */
-const folderAssetVersion = "20260805e";
+const folderAssetVersion = "20260906a";
 const folderBackdropSrc = `/portfolio cover6.png?v=${folderAssetVersion}`;
 const folderThemes = [
   { src: `/portfolio cover1.png?v=${folderAssetVersion}`, label: "ARCHIVE LOG", ink: "#4c2b21", hit: { left: "0%", width: "19.5%" } },
@@ -361,12 +409,20 @@ const folderThemes = [
 ] as const;
 
 /* Page 2 mirrors page 1 for now — replace these paths when new art is ready. */
-const folderPage2AssetVersion = "20260805e";
+const folderPage2AssetVersion = "20260906a";
 const folderPage2BackdropSrc = `/portfolio cover6.png?v=${folderPage2AssetVersion}`;
 const folderPage2Themes = folderThemes.map((theme) => ({
   ...theme,
   src: theme.src.replace(folderAssetVersion, folderPage2AssetVersion),
 }));
+
+/* Portal cover art — keep the ?v= strings in sync with globals.css. */
+const coverAssetVersion = "20260906a";
+const coverSources = [
+  `/cover1.png?v=${coverAssetVersion}`,
+  `/cover2.png?v=${coverAssetVersion}`,
+  `/cover3.png?v=${coverAssetVersion}`,
+];
 
 function MapView({
   selected,
@@ -433,6 +489,30 @@ function MapView({
     viewport.addEventListener("wheel", onWheel, { passive: false });
     return () => viewport.removeEventListener("wheel", onWheel);
   }, [portfolioOpen]);
+
+  // Warm the cache for the whole portfolio rack + backdrop as soon as the map
+  // mounts. They are <img> tags inside the (hidden) overlay, so without this
+  // a first click on Featured Works opens to blank paper while ~5MB of art
+  // downloads from the CDN.
+  useEffect(() => {
+    const sources = [
+      folderBackdropSrc,
+      ...folderThemes.map((theme) => theme.src),
+      ...mapCastles.map((castle) => castle.src),
+    ];
+    const images = sources.map((src) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = src;
+      return img;
+    });
+    return () => {
+      images.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
 
   const playFolderOpen = () => {
     window.clearTimeout(folderTransitTimerRef.current);
@@ -1076,7 +1156,7 @@ function ArchiveView({ project, close }: { project: Project; close: () => void }
       <div className="archive-topbar">
         <div className="archive-brand-block">
           <p className="archive-kicker">ARCHITECTURAL WORKS</p>
-          <p className="archive-brand-title">// {title}</p>
+          <p className="archive-brand-title">{"// "}{title}</p>
         </div>
         <button className="close-archive" onClick={requestClose} aria-label="关闭档案页">
           ×
@@ -1249,7 +1329,7 @@ export default function Home() {
 
   return (
     <div className="lumen-app">
-      <audio ref={audioRef} src="/bg-music.mp3" loop preload="auto" playsInline />
+      <audio ref={audioRef} src="/bg-music.mp3" loop preload="metadata" playsInline />
       <div className="noise" aria-hidden="true" />
       <div className="frame-corners" aria-hidden="true"><i /><i /><i /><i /></div>
       <Hud

@@ -147,7 +147,7 @@ button { border: 0; cursor: pointer; }
   width: 100vw;
   height: 100vh;
   /* Cover crops to fill viewport; source art is 3508×3000. */
-  background: url("/cover1.png?v=20260803b") center center / cover no-repeat;
+  background: url("/cover1.png?v=20260906a") center center / cover no-repeat;
   opacity: 0;
 }
 .portal-cover-2 {
@@ -155,7 +155,7 @@ button { border: 0; cursor: pointer; }
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: url("/cover2.png?v=20260803b") center center / cover no-repeat;
+  background: url("/cover2.png?v=20260906a") center center / cover no-repeat;
   opacity: 0;
   clip-path: inset(0 100% 0 0);
   filter: contrast(1.12) saturate(1.05) drop-shadow(0 0 5px rgba(177, 155, 220, 0.1));
@@ -171,7 +171,7 @@ button { border: 0; cursor: pointer; }
   z-index: 3;
   width: 100vw;
   height: 100vh;
-  background: url("/cover3.png?v=20260804a") center center / cover no-repeat;
+  background: url("/cover3.png?v=20260906a") center center / cover no-repeat;
   opacity: 0;
   transform: scale(.12);
   transform-origin: center;
@@ -709,11 +709,13 @@ button { border: 0; cursor: pointer; }
 }
 .folder-rack {
   /* Keep the 3508×3000 canvas aspect (≈1.169) so baked-in text never distorts;
-     letterbox inside the viewport with the paper color filling the rest. */
-  --rack-aspect: 3508 / 3000;
+     letterbox inside the viewport with the paper color filling the rest.
+     Both dims are literal calc chains on purpose: a var like
+     --rack-aspect: 3508 / 3000 expands textually, so calc(100vw / var(...))
+     becomes two sequential divisions and collapses the rack height to ~0. */
+  width: min(100vw, calc(100vh * 3508 / 3000));
+  height: min(100vh, calc(100vw * 3000 / 3508));
   position: relative;
-  width: min(100vw, calc(100vh * var(--rack-aspect)));
-  height: min(100vh, calc(100vw / var(--rack-aspect)));
   overflow: hidden;
 }
 .folder-backdrop {
@@ -832,7 +834,7 @@ button { border: 0; cursor: pointer; }
 .map-scroll-hint-img {
   width: 100%;
   height: 100%;
-  background: url("/提示词.png?v=20260804e") no-repeat;
+  background: url("/提示词.png?v=20260906a") no-repeat;
   background-size: calc(var(--hint-w) * 3508 / 643) calc(var(--hint-w) * 2480 / 643);
   background-position: calc(var(--hint-w) * -1432 / 643) calc(var(--hint-w) * -2122 / 643);
   opacity: 0.92;
