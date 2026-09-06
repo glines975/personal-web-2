@@ -124,9 +124,8 @@ button { border: 0; cursor: pointer; }
   background: #dfc9a5;
 }
 .sealed-scroll {
-  width: 100vw;
-  height: 100vh;
-  min-height: 100vh;
+  width: min(100vw, calc(100vh * 3508 / 3000));
+  height: min(100vh, calc(100vw * 3000 / 3508));
   position: relative;
   background: #dfc9a5;
   border: 0;
@@ -145,11 +144,13 @@ button { border: 0; cursor: pointer; }
    sits in a centered box matching the canvas aspect (wide screens no longer
    crop the footsteps/ornaments), and cover1 extends its own paper as a blurred
    wash so the leftover frame is textured paper, not blank color. cover2/3
-   boxes stay transparent and pixel-register over cover1's box. */
+   boxes stay transparent and pixel-register over cover1's box. The art box is
+   inset by a safety pad so trail ink never touches the viewport edge. */
 .portal-cover-1::before,
 .portal-cover-1::after,
 .portal-cover-2::after,
 .portal-cover-3::after {
+  --portal-pad: clamp(24px, 4vw, 64px);
   content: "";
   position: absolute;
 }
@@ -163,8 +164,8 @@ button { border: 0; cursor: pointer; }
 .portal-cover-3::after {
   left: 50%;
   top: 50%;
-  width: min(100vw, calc(100vh * 2000 / 1710));
-  height: min(100vh, calc(100vw * 1710 / 2000));
+  width: calc(min(100vw, calc(100vh * 2000 / 1710)) - var(--portal-pad, 0px) * 2);
+  height: calc(min(100vh, calc(100vw * 1710 / 2000)) - var(--portal-pad, 0px) * 2);
   transform: translate(-50%, -50%);
 }
 .portal-cover-1 {
