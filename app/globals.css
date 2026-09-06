@@ -134,15 +134,15 @@ button { border: 0; cursor: pointer; }
   box-shadow: none;
   cursor: pointer;
 }
-/* Full-bleed paper bed: cover1 tiled at EXACTLY the art-box scale, centered —
-   the centre tile sits pixel-for-pixel under the canvas, so the sheet edges
-   dissolve into a continuous sheet of paper. Slight blur only hides the tile
-   seams; the texture scale matches, so nothing reads as a floating card. */
+/* Full-bleed paper bed: a clean paper patch sampled from cover1 itself (same
+   fibre, same tone as the canvas edges), tiled at the art-box scale and softly
+   blurred so tile seams vanish. The canvas keeps its full aspect on top —
+   no crop, no distortion, and the frame reads as one continuous sheet. */
 .sealed-scroll::before {
   content: "";
   position: absolute;
   inset: -16px;
-  background: url("/cover1.png?v=20260906a") center center /
+  background: url("/cover1-paper.png?v=20260906b") center center /
     min(100vw, calc(100vh * 2000 / 1710)) auto repeat;
   filter: blur(2px);
 }
