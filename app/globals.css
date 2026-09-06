@@ -678,6 +678,8 @@ button { border: 0; cursor: pointer; }
   transition: opacity 0.3s ease;
   user-select: none;
 }
+/* Marks are direct children of the full-bleed overlay, so they always hug
+   the screen's right edge — even when the rack hugs the left. */
 .portfolio-overlay.is-open.is-collapsed .portfolio-mark {
   opacity: 1;
 }
@@ -712,11 +714,15 @@ button { border: 0; cursor: pointer; }
      Both dims are literal calc chains on purpose: a var like
      --rack-aspect: 3508 / 3000 expands textually, so calc(100vw / var(...))
      becomes two sequential divisions and collapses the rack height to ~0.
-     The leftover screen area is NOT flat color — .folder-backdrop (direct
-     overlay child, cover-fit) extends the same paper art edge-to-edge. */
+     Anchored to the LEFT edge; the leftover screen area is NOT flat color —
+     .folder-backdrop (direct overlay child, cover-fit) extends the same
+     paper art edge-to-edge, and nav marks live on the overlay's right edge. */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: min(100vw, calc(100vh * 3508 / 3000));
   height: min(100vh, calc(100vw * 3000 / 3508));
-  position: relative;
   overflow: hidden;
 }
 .folder-backdrop {

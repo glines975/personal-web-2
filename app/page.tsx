@@ -895,53 +895,53 @@ function MapView({
           draggable={false}
         />
       </div>
+      <button
+        type="button"
+        className="portfolio-mark portfolio-mark-back"
+        onClick={closePortfolioPage}
+        aria-label={portfolioPage > 1 ? "返回上一页" : "返回主页面"}
+        tabIndex={portfolioOpen && marksVisible ? 0 : -1}
+      >
+        <svg viewBox="0 0 52 40" aria-hidden="true">
+          <path
+            d="M42 34 V18 A14 14 0 0 0 28 4 H16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8 4 L26 -1.2 V9.2 Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      {portfolioPage === 1 && (
+        <button
+          type="button"
+          className="portfolio-mark portfolio-mark-next"
+          onClick={openPortfolioPage2}
+          aria-label="打开下一页档案"
+          tabIndex={portfolioOpen && marksVisible ? 0 : -1}
+        >
+          <svg viewBox="0 0 28 48" aria-hidden="true">
+            <path
+              d="M6 6 L20 24 L6 42"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
       <div
         className="folder-rack"
         role="list"
         onPointerLeave={() => setHoveredFolder(null)}
       >
-          <button
-            type="button"
-            className="portfolio-mark portfolio-mark-back"
-            onClick={closePortfolioPage}
-            aria-label={portfolioPage > 1 ? "返回上一页" : "返回主页面"}
-            tabIndex={portfolioOpen && marksVisible ? 0 : -1}
-          >
-            <svg viewBox="0 0 52 40" aria-hidden="true">
-              <path
-                d="M42 34 V18 A14 14 0 0 0 28 4 H16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M8 4 L26 -1.2 V9.2 Z"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
-          {portfolioPage === 1 && (
-            <button
-              type="button"
-              className="portfolio-mark portfolio-mark-next"
-              onClick={openPortfolioPage2}
-              aria-label="打开下一页档案"
-              tabIndex={portfolioOpen && marksVisible ? 0 : -1}
-            >
-              <svg viewBox="0 0 28 48" aria-hidden="true">
-                <path
-                  d="M6 6 L20 24 L6 42"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          )}
           {activeFolderThemes.map((theme, index) => (
             <div
               key={`layer-${theme.label}`}
