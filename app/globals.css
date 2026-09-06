@@ -134,17 +134,17 @@ button { border: 0; cursor: pointer; }
   box-shadow: none;
   cursor: pointer;
 }
-/* Full-bleed paper bed: a clean paper patch sampled from cover1 itself (same
-   fibre, same tone as the canvas edges), tiled at the art-box scale and softly
-   blurred so tile seams vanish. The canvas keeps its full aspect on top —
-   no crop, no distortion, and the frame reads as one continuous sheet. */
+/* Full-bleed paper bed: mirror-tiled from the flattened cover1 patch — every
+   tile boundary is paper meeting its own mirror, so seams are invisible by
+   construction (no visible steps, no duplicated ornament). Slight blur melts
+   the jpeg grain; the canvas keeps its full aspect on top. */
 .sealed-scroll::before {
   content: "";
   position: absolute;
   inset: -16px;
-  background: url("/cover1-paper.jpg?v=20260906c") center center /
-    min(100vw, calc(100vh * 2000 / 1710)) auto repeat;
-  filter: blur(2px);
+  background: url("/cover1-paper-tile.jpg?v=20260906d") center center /
+    calc(min(100vw, calc(100vh * 2000 / 1710)) * 2) auto repeat;
+  filter: blur(1px);
 }
 .portal.is-opening .sealed-scroll { cursor: default; }
 .portal-cover {
@@ -172,12 +172,22 @@ button { border: 0; cursor: pointer; }
   height: min(100vh, calc(100vw * 1710 / 2000));
   transform: translate(-50%, -50%);
 }
+/* cover1's paper fades into the bed over ~40px so the canvas edge is a
+   fibre-to-fibre transition, not a card boundary. Art ink sits ≥60px
+   inside the canvas, so nothing visible gets feathered away. */
 .portal-cover-1 {
   z-index: 1;
   opacity: 0;
 }
 .portal-cover-1::after {
   background: url("/cover1.png?v=20260906a") center center / 100% 100% no-repeat;
+  mask-image: url("/edge-feather.png?v=20260906d");
+  mask-size: 100% 100%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: url("/edge-feather.png?v=20260906d");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
 }
 .portal-cover-2 {
   z-index: 2;
