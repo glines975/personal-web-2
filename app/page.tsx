@@ -245,6 +245,7 @@ function Portal({
   const [cover2Visible, setCover2Visible] = useState(false);
   const [cover3Visible, setCover3Visible] = useState(false);
   const [assetsReady, setAssetsReady] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
   const timersRef = useRef<number[]>([]);
   const finishingRef = useRef(false);
 
@@ -294,7 +295,7 @@ function Portal({
   }, []);
 
   useEffect(() => {
-    if (!assetsReady || finishingRef.current) return;
+    if (!assetsReady || !gateOpen || finishingRef.current) return;
     // Footprints start the moment the sheet appears (background and animation
     // share the same initial time), run 10.5s (last 0.5s = hold after gone)
     const COVER2_START = 0;
@@ -318,7 +319,7 @@ function Portal({
       timers.forEach((id) => window.clearTimeout(id));
       timersRef.current = [];
     };
-  }, [assetsReady]);
+  }, [assetsReady, gateOpen]);
 
   const finishToMap = (delayMs: number) => {
     if (finishingRef.current) return;
@@ -337,19 +338,36 @@ function Portal({
     finishToMap(420);
   };
 
+  const openGate = () => {
+    if (gateOpen) return;
+    setGateOpen(true);
+  };
+
   return (
-    <main className={`portal is-${phase}${phase === "opening" ? " is-opening" : ""}${assetsReady ? " portal-is-ready" : ""}`}>
+    <main className={`portal is-${phase}${phase === "opening" ? " is-opening" : ""}${gateOpen && assetsReady ? " portal-is-ready" : ""}`}>
       <button
         className="sealed-scroll"
         onClick={skipOpening}
         aria-label="点击跳过开场，进入主页"
       >
         <span
-          className={`portal-cover portal-cover-1${assetsReady ? " is-visible" : ""}`}
+          className={`portal-cover portal-cover-1${gateOpen && assetsReady ? " is-visible" : ""}`}
           aria-hidden="true"
         />
         <span className={`portal-cover portal-cover-2 ${cover2Visible ? "is-visible" : ""}`} aria-hidden="true" />
         <span className={`portal-cover portal-cover-3 ${cover3Visible ? "is-visible" : ""}`} aria-hidden="true" />
+      </button>
+      <button
+        className={`portal-gate${gateOpen ? " is-open" : ""}`}
+        onClick={openGate}
+        aria-label="点击破印，开启开场与音乐"
+      >
+        <span className="gate-inner" aria-hidden="true">
+          <span className="gate-mark">L</span>
+          <span className="gate-title">LUMEN</span>
+          <span className="gate-hint">点击破印 · 开启回廊</span>
+          <span className="gate-sub">CLICK TO BREAK THE SEAL</span>
+        </span>
       </button>
     </main>
   );
@@ -1263,6 +1281,8 @@ export default function Home() {
   const [musicEnabled, setMusicEnabled] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUnlockedRef = useRef(false);
+  const musicEnabledRef = useRef(true);
+  musicEnabledRef.current = musicEnabled;
 
   const applyMusicRate = (audio: HTMLAudioElement) => {
     audio.playbackRate = 0.75;
@@ -1271,16 +1291,27 @@ export default function Home() {
 
   const playMusic = () => {
     const audio = audioRef.current;
-    if (!audio || !musicEnabled) return;
+    if (!audio || !musicEnabledRef.current) return;
     applyMusicRate(audio);
     audio.volume = 0.45;
+    audio.muted = false;
     void audio
       .play()
       .then(() => {
         audioUnlockedRef.current = true;
         setMusicOn(true);
       })
-      .catch(() => setMusicOn(false));
+      .catch(() => {
+        // Still blocked (no gesture yet): retry on the first interaction.
+        setMusicOn(false);
+        const retry = () => {
+          window.removeEventListener("pointerdown", retry);
+          window.removeEventListener("keydown", retry);
+          if (audio.paused) playMusic();
+        };
+        window.addEventListener("pointerdown", retry, { once: true });
+        window.addEventListener("keydown", retry, { once: true });
+      });
   };
 
   useEffect(() => {
@@ -1288,10 +1319,11 @@ export default function Home() {
     if (!audio) return;
     applyMusicRate(audio);
     if ((view === "map" || view === "archive") && musicEnabled) {
-      // Resume if already unlocked; first start happens in the cover click gesture.
-      if (audioUnlockedRef.current || !audio.paused) {
+      // Clock already runs from the Leah-start play; just keep it audible.
+      if (!audio.paused) {
         audio.volume = 0.45;
-        void audio.play().then(() => setMusicOn(true)).catch(() => setMusicOn(false));
+        audio.muted = false;
+        setMusicOn(true);
       }
     } else if (view === "portal" || view === "about") {
       audio.pause();
@@ -1318,26 +1350,9 @@ export default function Home() {
     }
   };
 
-  // Browsers block play() without a user gesture, so the timer-driven start at
-  // COVER3_START silently fails on a cold load. Arm a one-shot unlock on the
-  // first pointer/keydown anywhere: it retries immediately (music starts with
-  // the animation) and arms the element for the scheduled retry too.
-  useEffect(() => {
-    if (audioUnlockedRef.current) return;
-    const unlock = () => {
-      audioUnlockedRef.current = true;
-      playMusic();
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
-    };
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
-    return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // The gate click grants sticky user activation, so the timer-driven play
+  // at COVER3_START is audible in every browser. If it still fails (exotic
+  // policy), playMusic's catch arms a one-shot retry on the next interaction.
 
   const goTo = (next: "portal" | "map" | "about") => {
     setMenuOpen(false);
