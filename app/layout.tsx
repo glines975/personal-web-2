@@ -38,17 +38,17 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
   return {
-    title: "LUMEN — Archive of Spatial Light",
+    title: "leahverse",
     description:
       "An immersive architectural archive. Break the seal, roam the living map, and descend into spatial records drawn in silver light.",
     openGraph: {
-      title: "LUMEN — Archive of Spatial Light",
+      title: "leahverse",
       description: "A dark magical archive of architecture, atmosphere and living light.",
       images: [`${origin}/og.png`],
     },
     twitter: {
       card: "summary_large_image",
-      title: "LUMEN — Archive of Spatial Light",
+      title: "leahverse",
       description: "A dark magical archive of architecture, atmosphere and living light.",
       images: [`${origin}/og.png`],
     },
