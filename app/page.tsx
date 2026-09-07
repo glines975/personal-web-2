@@ -1357,7 +1357,7 @@ export default function Home() {
 
   return (
     <div className="lumen-app">
-      <audio ref={audioRef} src="/bg-music.mp3" loop preload="metadata" playsInline />
+      <audio ref={audioRef} src="/bg-music-96.mp3" loop preload="metadata" playsInline />
       <div className="noise" aria-hidden="true" />
       <div className="frame-corners" aria-hidden="true"><i /><i /><i /><i /></div>
       <Hud
