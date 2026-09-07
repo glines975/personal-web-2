@@ -180,16 +180,12 @@ function Hud({
   menuOpen,
   setMenuOpen,
   goTo,
-  musicOn,
-  toggleMusic,
 }: {
   view: string;
   portfolioOpen: boolean;
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
   goTo: (view: "portal" | "map" | "about") => void;
-  musicOn: boolean;
-  toggleMusic: () => void;
 }) {
   return (
     <header className={`hud ${view === "portal" ? "hud-hidden" : ""}`}>
@@ -207,12 +203,6 @@ function Hud({
               ? "RECORD C–01"
               : "ARCHIVE AR–01"}
       </div>
-      <button
-        className={`music-toggle${musicOn ? "" : " is-off"}`}
-        onClick={toggleMusic}
-        aria-label={musicOn ? "关闭背景音乐" : "开启背景音乐"}
-        aria-pressed={musicOn}
-      />
       <button
         className="sector-button"
         onClick={() => setMenuOpen(!menuOpen)}
@@ -1259,12 +1249,8 @@ export default function Home() {
   const [archiveProject, setArchiveProject] = useState<Project>(projects[0]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [portfolioOpen, setPortfolioOpen] = useState(false);
-  const [musicOn, setMusicOn] = useState(false);
-  const [musicEnabled, setMusicEnabled] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUnlockedRef = useRef(false);
-  const musicEnabledRef = useRef(true);
-  musicEnabledRef.current = musicEnabled;
 
   const applyMusicRate = (audio: HTMLAudioElement) => {
     audio.playbackRate = 0.75;
@@ -1273,7 +1259,7 @@ export default function Home() {
 
   const playMusic = () => {
     const audio = audioRef.current;
-    if (!audio || !musicEnabledRef.current) return;
+    if (!audio) return;
     applyMusicRate(audio);
     audio.volume = 0.45;
     audio.muted = false;
@@ -1281,11 +1267,9 @@ export default function Home() {
       .play()
       .then(() => {
         audioUnlockedRef.current = true;
-        setMusicOn(true);
       })
       .catch(() => {
         // Still blocked (no gesture yet): retry on the first interaction.
-        setMusicOn(false);
         const retry = () => {
           window.removeEventListener("pointerdown", retry);
           window.removeEventListener("keydown", retry);
@@ -1300,37 +1284,16 @@ export default function Home() {
     const audio = audioRef.current;
     if (!audio) return;
     applyMusicRate(audio);
-    if ((view === "map" || view === "archive") && musicEnabled) {
-      // Clock already runs from the Leah-start play; just keep it audible.
+    if (view === "map" || view === "archive") {
+      // Keep the clock running once it has started.
       if (!audio.paused) {
         audio.volume = 0.45;
         audio.muted = false;
-        setMusicOn(true);
       }
     } else if (view === "portal" || view === "about") {
       audio.pause();
-      setMusicOn(false);
     }
-  }, [view, musicEnabled]);
-
-  const toggleMusic = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (showPortal && view !== "map") return;
-    if (audio.paused) {
-      setMusicEnabled(true);
-      applyMusicRate(audio);
-      audio.volume = 0.45;
-      void audio.play().then(() => {
-        audioUnlockedRef.current = true;
-        setMusicOn(true);
-      }).catch(() => setMusicOn(false));
-    } else {
-      setMusicEnabled(false);
-      audio.pause();
-      setMusicOn(false);
-    }
-  };
+  }, [view]);
 
   // Browsers reject play() outside a user gesture, so the scheduled start at
   // the Leah tick sounds only after the visitor's first click (the intro skip
@@ -1363,8 +1326,6 @@ export default function Home() {
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
         goTo={goTo}
-        musicOn={musicOn}
-        toggleMusic={toggleMusic}
       />
       {view === "map" && (
         <MapView
