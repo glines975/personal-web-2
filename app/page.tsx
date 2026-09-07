@@ -245,7 +245,6 @@ function Portal({
   const [cover2Visible, setCover2Visible] = useState(false);
   const [cover3Visible, setCover3Visible] = useState(false);
   const [assetsReady, setAssetsReady] = useState(false);
-  const [gateOpen, setGateOpen] = useState(false);
   const timersRef = useRef<number[]>([]);
   const finishingRef = useRef(false);
 
@@ -295,7 +294,7 @@ function Portal({
   }, []);
 
   useEffect(() => {
-    if (!assetsReady || !gateOpen || finishingRef.current) return;
+    if (!assetsReady || finishingRef.current) return;
     // Footprints start the moment the sheet appears (background and animation
     // share the same initial time), run 10.5s (last 0.5s = hold after gone)
     const COVER2_START = 0;
@@ -319,7 +318,7 @@ function Portal({
       timers.forEach((id) => window.clearTimeout(id));
       timersRef.current = [];
     };
-  }, [assetsReady, gateOpen]);
+  }, [assetsReady]);
 
   const finishToMap = (delayMs: number) => {
     if (finishingRef.current) return;
@@ -338,36 +337,19 @@ function Portal({
     finishToMap(420);
   };
 
-  const openGate = () => {
-    if (gateOpen) return;
-    setGateOpen(true);
-  };
-
   return (
-    <main className={`portal is-${phase}${phase === "opening" ? " is-opening" : ""}${gateOpen && assetsReady ? " portal-is-ready" : ""}`}>
+    <main className={`portal is-${phase}${phase === "opening" ? " is-opening" : ""}${assetsReady ? " portal-is-ready" : ""}`}>
       <button
         className="sealed-scroll"
         onClick={skipOpening}
         aria-label="点击跳过开场，进入主页"
       >
         <span
-          className={`portal-cover portal-cover-1${gateOpen && assetsReady ? " is-visible" : ""}`}
+          className={`portal-cover portal-cover-1${assetsReady ? " is-visible" : ""}`}
           aria-hidden="true"
         />
         <span className={`portal-cover portal-cover-2 ${cover2Visible ? "is-visible" : ""}`} aria-hidden="true" />
         <span className={`portal-cover portal-cover-3 ${cover3Visible ? "is-visible" : ""}`} aria-hidden="true" />
-      </button>
-      <button
-        className={`portal-gate${gateOpen ? " is-open" : ""}`}
-        onClick={openGate}
-        aria-label="点击破印，开启开场与音乐"
-      >
-        <span className="gate-inner" aria-hidden="true">
-          <span className="gate-mark">L</span>
-          <span className="gate-title">LUMEN</span>
-          <span className="gate-hint">点击破印 · 开启回廊</span>
-          <span className="gate-sub">CLICK TO BREAK THE SEAL</span>
-        </span>
       </button>
     </main>
   );
@@ -1350,9 +1332,9 @@ export default function Home() {
     }
   };
 
-  // The gate click grants sticky user activation, so the timer-driven play
-  // at COVER3_START is audible in every browser. If it still fails (exotic
-  // policy), playMusic's catch arms a one-shot retry on the next interaction.
+  // Browsers reject play() outside a user gesture, so the scheduled start at
+  // the Leah tick sounds only after the visitor's first click (the intro skip
+  // or anything else). playMusic's catch arms that one-shot retry.
 
   const goTo = (next: "portal" | "map" | "about") => {
     setMenuOpen(false);

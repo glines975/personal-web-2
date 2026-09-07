@@ -170,65 +170,6 @@ button { border: 0; cursor: pointer; }
   opacity: 1;
 }
 .portal.is-opening .sealed-scroll { cursor: default; }
-/* The seal gate: one click grants the user activation browsers require for
-   audio, so music and animation can share the same initial tick. */
-.portal-gate {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  transition: opacity .6s ease, visibility .6s ease;
-}
-.portal-gate.is-open {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-.gate-inner {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
-  padding: 46px 64px;
-  color: #4a2a14;
-  border: 1px solid rgba(74, 42, 20, 0.45);
-  background: rgba(226, 204, 168, 0.55);
-  box-shadow: 0 0 0 6px rgba(226, 204, 168, 0.28), 0 14px 44px rgba(64, 38, 18, 0.18);
-  transition: transform .5s cubic-bezier(.2, .7, .2, 1), box-shadow .5s ease;
-}
-.portal-gate:hover .gate-inner {
-  transform: translateY(-2px);
-  box-shadow: 0 0 0 6px rgba(226, 204, 168, 0.36), 0 20px 56px rgba(64, 38, 18, 0.24);
-}
-.gate-mark {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 6px;
-  border: 1px solid rgba(74, 42, 20, 0.55);
-  border-radius: 50%;
-  font: 500 34px var(--font-serif);
-  box-shadow: 0 0 22px rgba(74, 42, 20, 0.16);
-}
-.gate-title {
-  font: 500 20px var(--font-mono);
-  letter-spacing: .5em;
-  text-indent: .5em;
-}
-.gate-hint {
-  font: 400 15px var(--font-serif);
-  letter-spacing: .22em;
-  opacity: .85;
-}
-.gate-sub {
-  font: 400 8px var(--font-mono);
-  letter-spacing: .34em;
-  opacity: .55;
-}
 .portal-cover {
   position: absolute;
   inset: 0;
