@@ -902,6 +902,87 @@ button { border: 0; cursor: pointer; }
   background-position: calc(var(--hint-w) * -1432 / 643) calc(var(--hint-w) * -2122 / 643);
   opacity: 0.92;
 }
+/* Direct About/Contact gates pinned to the map's lower-left corner. */
+.map-gates {
+  position: fixed;
+  left: 34px;
+  bottom: 30px;
+  z-index: 50;
+  display: flex;
+  gap: 14px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .8s ease .6s, transform .8s ease .6s;
+  pointer-events: none;
+}
+.map-view.is-entered .map-gates {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.map-gates.is-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity .4s ease, transform .4s ease;
+  transform: translateY(8px);
+}
+.map-gate {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 13px 18px 12px;
+  background: rgba(12,13,19,.55);
+  border: 1px solid rgba(200,199,210,.16);
+  backdrop-filter: blur(10px);
+  color: #b9b6c2;
+  text-align: left;
+  overflow: hidden;
+  transition: .35s ease;
+}
+.map-gate::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--violet-bright, #b19bdc);
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+.map-gate-num {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  color: rgba(200,199,210,.28);
+  font: 7px var(--font-mono);
+  letter-spacing: .2em;
+}
+.map-gate-title {
+  font: 400 17px var(--font-serif);
+  letter-spacing: .1em;
+  color: #d8d5de;
+  transition: .35s ease;
+}
+.map-gate-sub {
+  color: #6f6c7a;
+  font: 6.5px var(--font-mono);
+  letter-spacing: .22em;
+  transition: color .35s ease;
+}
+.map-gate:hover {
+  background: rgba(19,20,30,.78);
+  border-color: rgba(177,155,220,.45);
+  box-shadow: 0 6px 34px rgba(0,0,0,.45), 0 0 22px rgba(140,120,184,.14);
+  transform: translateY(-2px);
+}
+.map-gate:hover::before { opacity: 1; }
+.map-gate:hover .map-gate-title {
+  color: #fff;
+  text-shadow: 0 0 18px rgba(177,155,220,.6);
+}
+.map-gate:hover .map-gate-sub { color: #a89cc4; }
 .project-dossier {
   position: fixed; z-index: 20; top: 14vh; right: 4vw; bottom: 8vh; width: min(410px, 40vw); padding: 42px 44px 38px;
   background: linear-gradient(145deg, rgba(22,23,31,.92), rgba(11,12,18,.84)); border: 1px solid rgba(200,199,210,.18);
@@ -1278,6 +1359,9 @@ button { border: 0; cursor: pointer; }
   .sector-button { top: 26px; right: 22px; }
   .hud-location { left: 22px; bottom: 22px; }
   .global-menu { top: 10px; right: 10px; width: calc(100vw - 20px); }
+  .map-gates { left: 12px; right: 12px; bottom: 16px; gap: 10px; }
+  .map-gate { flex: 1; padding: 11px 14px 10px; }
+  .map-gate-sub { display: none; }
   .contact-grid { grid-template-columns: 1fr; gap: 56px; margin-top: 60px; }
   .contact-view { padding: 15vh 20px 10vh; }
   .contact-folder { width: 100%; padding: 50px 28px; }

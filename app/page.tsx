@@ -428,12 +428,14 @@ function MapView({
   enterArchive,
   portfolioOpen,
   setPortfolioOpen,
+  goTo,
 }: {
   selected: Project | null;
   setSelected: (project: Project | null) => void;
   enterArchive: (project: Project) => void;
   portfolioOpen: boolean;
   setPortfolioOpen: (open: boolean) => void;
+  goTo: (view: ViewName) => void;
 }) {
   const [offsetX, setOffsetX] = useState(0);
   const [entered, setEntered] = useState(false);
@@ -839,6 +841,18 @@ function MapView({
         </div>
       </div>
       <div ref={fluoroRef} className="fluorescent-cursor" aria-hidden="true" />
+      <nav className={`map-gates${portfolioOpen ? " is-hidden" : ""}`} aria-label="页面通道">
+        <button type="button" className="map-gate" onClick={() => goTo("about")}>
+          <span className="map-gate-num">03</span>
+          <span className="map-gate-title">ABOUT ME</span>
+          <span className="map-gate-sub">THE CREATOR&apos;S RECORD</span>
+        </button>
+        <button type="button" className="map-gate" onClick={() => goTo("contact")}>
+          <span className="map-gate-num">04</span>
+          <span className="map-gate-title">CONTACT</span>
+          <span className="map-gate-sub">SEND A SIGNAL</span>
+        </button>
+      </nav>
       <div
         className={`map-scroll-hint${scrollHintVisible && !portfolioOpen ? "" : " is-dismissed"}`}
         aria-hidden={!entered || !scrollHintVisible || portfolioOpen}
@@ -1412,6 +1426,7 @@ export default function Home() {
           enterArchive={enterArchive}
           portfolioOpen={portfolioOpen}
           setPortfolioOpen={setPortfolioOpen}
+          goTo={goTo}
         />
       )}
       {view === "archive" && (
