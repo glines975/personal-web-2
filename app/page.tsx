@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+
+type ViewName = "portal" | "map" | "archive" | "about" | "contact";
 
 type Project = {
   id: string;
@@ -181,17 +183,17 @@ function Hud({
   setMenuOpen,
   goTo,
 }: {
-  view: string;
+  view: ViewName;
   portfolioOpen: boolean;
   menuOpen: boolean;
   setMenuOpen: (open: boolean) => void;
-  goTo: (view: "portal" | "map" | "about") => void;
+  goTo: (view: ViewName) => void;
 }) {
   return (
     <header className={`hud ${view === "portal" ? "hud-hidden" : ""}`}>
       <button className="brand-mark" onClick={() => goTo("map")} aria-label="返回地图">
         <span className="brand-glyph">L</span>
-        <span>LUMEN</span>
+        <span>LEAHVERSE</span>
       </button>
       <div className="hud-location">
         <span className="live-dot" />
@@ -200,8 +202,10 @@ function Hud({
           : view === "map"
             ? "SECTOR 7–G"
             : view === "about"
-              ? "RECORD C–01"
-              : "ARCHIVE AR–01"}
+              ? "ABOUT"
+              : view === "contact"
+                ? "CONTACT"
+                : "ARCHIVE AR–01"}
       </div>
       <button
         className="sector-button"
@@ -212,11 +216,11 @@ function Hud({
         INDEX <span>{menuOpen ? "×" : "＋"}</span>
       </button>
       <div id="global-menu" className={`global-menu ${menuOpen ? "is-open" : ""}`}>
-        <div className="menu-code">LUMEN / ROOT DIRECTORY</div>
+        <div className="menu-code">LEAHVERSE / ROOT DIRECTORY</div>
         <button onClick={() => goTo("portal")}><span>01</span> PORTAL</button>
         <button onClick={() => goTo("map")}><span>02</span> CITY MAP</button>
-        <button onClick={() => goTo("about")}><span>03</span> CREATOR&apos;S RECORD</button>
-        <a href="mailto:hello@lumen.archive"><span>04</span> CONTACT</a>
+        <button onClick={() => goTo("about")}><span>03</span> ABOUT ME</button>
+        <button onClick={() => goTo("contact")}><span>04</span> CONTACT</button>
       </div>
     </header>
   );
@@ -1203,17 +1207,18 @@ function AboutView() {
     <main className="about-view">
       <ParticleField calm />
       <div className="record-folder">
-        <div className="folder-tab">RECORD C–01 / CONFIDENTIAL</div>
-        <div className="record-stamp">CLEARED<br /><span>LEVEL 07</span></div>
+        <div className="folder-tab">ABOUT ME / CREATOR&apos;S RECORD</div>
+        <div className="record-stamp">OPEN<br /><span>FOR COLLABORATION</span></div>
         <div className="record-intro">
-          <p className="eyebrow">THE CREATOR&apos;S RECORD</p>
-          <h1>Leah<br />— Keeper of Lumen</h1>
+          <p className="eyebrow">ABOUT ME</p>
+          <h1>Leah<br />— Spatial Designer</h1>
           <p>
-            Spatial designer and visual storyteller exploring the point where architecture,
-            atmosphere and narrative become one continuous experience.
+            I design spaces that tell stories. My work sits where architecture,
+            atmosphere and narrative meet — building worlds that people can walk
+            through, feel, and remember.
           </p>
         </div>
-        <div className="portrait-reveal" aria-label="创作者抽象肖像占位">
+        <div className="portrait-reveal" aria-label="创作者抽象肖像">
           <div className="ink-silhouette" />
           <span>PORTRAIT / INK REVEAL</span>
         </div>
@@ -1236,14 +1241,87 @@ function AboutView() {
           <div><b>2022 — 2024</b><h3>Architectural Storytelling Lab</h3><p>Experimental environments & visual systems</p></div>
           <div><b>2018 — 2022</b><h3>B.Arch / School of the Built Environment</h3><p>Architecture, media and urban ritual</p></div>
         </section>
-        <div className="record-footer">SIGNED IN SILVER INK · LUMEN ARCHIVE · 2026</div>
+        <div className="record-footer">SIGNED IN SILVER INK · LEAHVERSE · 2026</div>
+      </div>
+    </main>
+  );
+}
+
+function ContactView() {
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [sent, setSent] = useState(false);
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const subject = encodeURIComponent(`[leahverse] ${form.name || "Hello"}`);
+    const body = encodeURIComponent(`${form.message}\n\n— ${form.name}\n${form.email}`);
+    window.location.href = `mailto:hello@leahverse.studio?subject=${subject}&body=${body}`;
+    setSent(true);
+  };
+
+  const field = (key: "name" | "email" | "message") => ({
+    value: form[key],
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((prev) => ({ ...prev, [key]: e.target.value })),
+  });
+
+  return (
+    <main className="contact-view">
+      <ParticleField calm />
+      <div className="contact-folder">
+        <div className="folder-tab">CONTACT / OPEN CHANNEL</div>
+        <div className="contact-intro">
+          <p className="eyebrow">GET IN TOUCH</p>
+          <h1>Send a<br />Signal</h1>
+          <p>
+            Commissions, collaborations, or simply a hello —
+            the archive is always listening. I reply within two working days.
+          </p>
+        </div>
+        <div className="contact-grid">
+          <form className="contact-form" onSubmit={submit}>
+            <label>
+              <span>NAME</span>
+              <input type="text" required placeholder="How should I call you" {...field("name")} />
+            </label>
+            <label>
+              <span>EMAIL</span>
+              <input type="email" required placeholder="Where the reply goes" {...field("email")} />
+            </label>
+            <label>
+              <span>MESSAGE</span>
+              <textarea required rows={6} placeholder="Tell me about the space you imagine" {...field("message")} />
+            </label>
+            <button type="submit" className="contact-send">
+              <span>{sent ? "OPENED YOUR MAIL APP — PRESS SEND" : "TRANSMIT MESSAGE"}</span>
+              <i>↗</i>
+            </button>
+          </form>
+          <aside className="contact-channels">
+            <p className="section-num">DIRECT CHANNELS</p>
+            <a href="mailto:hello@leahverse.studio" className="channel-row">
+              <b>MAIL</b><span>hello@leahverse.studio</span><i>↗</i>
+            </a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noreferrer" className="channel-row">
+              <b>INSTAGRAM</b><span>@leahverse</span><i>↗</i>
+            </a>
+            <a href="https://www.behance.net/" target="_blank" rel="noreferrer" className="channel-row">
+              <b>BEHANCE</b><span>/leahverse</span><i>↗</i>
+            </a>
+            <div className="contact-note">
+              <p className="section-num">AVAILABILITY</p>
+              <p>Currently accepting spatial design & visual direction commissions for 2026 — remote worldwide, onsite in Shanghai / London.</p>
+            </div>
+          </aside>
+        </div>
+        <div className="record-footer">SIGNAL ENDS · LEAHVERSE · 2026</div>
       </div>
     </main>
   );
 }
 
 export default function Home() {
-  const [view, setView] = useState<"portal" | "map" | "archive" | "about">("portal");
+  const [view, setView] = useState<ViewName>("portal");
   const [showPortal, setShowPortal] = useState(true);
   const [selected, setSelected] = useState<Project | null>(null);
   const [archiveProject, setArchiveProject] = useState<Project>(projects[0]);
@@ -1290,7 +1368,7 @@ export default function Home() {
         audio.volume = 0.45;
         audio.muted = false;
       }
-    } else if (view === "portal" || view === "about") {
+    } else if (view === "portal" || view === "about" || view === "contact") {
       audio.pause();
     }
   }, [view]);
@@ -1299,7 +1377,7 @@ export default function Home() {
   // the Leah tick sounds only after the visitor's first click (the intro skip
   // or anything else). playMusic's catch arms that one-shot retry.
 
-  const goTo = (next: "portal" | "map" | "about") => {
+  const goTo = (next: ViewName) => {
     setMenuOpen(false);
     setSelected(null);
     setPortfolioOpen(false);
@@ -1346,6 +1424,7 @@ export default function Home() {
         />
       )}
       {view === "about" && <AboutView />}
+      {view === "contact" && <ContactView />}
       {showPortal && (
         <Portal
           onUnlock={playMusic}
