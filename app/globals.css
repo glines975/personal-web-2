@@ -690,6 +690,15 @@ button { border: 0; cursor: pointer; }
 .map-view.is-portfolio .castle-float-hit {
   pointer-events: none;
 }
+/* 底层地图左上“ABOUT ME”旗帜+塔楼的透明点击热区。
+   地图 plane 比视口宽（left ≈ -16% 视口），所以用相对于 plane 的
+   坐标；16% ≈ 视口左边缘附近，覆盖旗帜+塔楼。 */
+.about-me-hit {
+  left: 16.2% !important;
+  top: 1.8% !important;
+  width: 11.5% !important;
+  height: 14% !important;
+}
 
 .portfolio-overlay {
   position: fixed;

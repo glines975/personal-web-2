@@ -799,6 +799,13 @@ function MapView({
         >
           <div className="map-plane-stage">
             <canvas ref={canvasRef} className="map-reveal-canvas" aria-hidden="true" />
+            {/* 底层地图“ABOUT ME”旗帜+塔楼的透明点击热区 → AboutView */}
+            <button
+              type="button"
+              className="castle-float-hit about-me-hit"
+              aria-label="About Me"
+              onClick={() => goTo("about")}
+            />
             {mapCastles.map((castle) => (
               <div
                 key={castle.id}
