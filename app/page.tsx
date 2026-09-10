@@ -207,21 +207,7 @@ function Hud({
                 ? "CONTACT"
                 : "ARCHIVE AR–01"}
       </div>
-      <button
-        className="sector-button"
-        onClick={() => setMenuOpen(!menuOpen)}
-        aria-expanded={menuOpen}
-        aria-controls="global-menu"
-      >
-        INDEX <span>{menuOpen ? "×" : "＋"}</span>
-      </button>
-      <div id="global-menu" className={`global-menu ${menuOpen ? "is-open" : ""}`}>
-        <div className="menu-code">LEAHVERSE / ROOT DIRECTORY</div>
-        <button onClick={() => goTo("portal")}><span>01</span> PORTAL</button>
-        <button onClick={() => goTo("map")}><span>02</span> CITY MAP</button>
-        <button onClick={() => goTo("about")}><span>03</span> ABOUT ME</button>
-        <button onClick={() => goTo("contact")}><span>04</span> CONTACT</button>
-      </div>
+
     </header>
   );
 }
@@ -375,7 +361,7 @@ const mapCastles = [
   {
     id: "castle2",
     src: `/castle2.png?v=${castleAssetVersion}`,
-    label: "北塔",
+    label: "About Me",
     originX: "22.6%",
     originY: "20.4%",
     glowOriginY: "24.8%",
@@ -384,7 +370,7 @@ const mapCastles = [
   {
     id: "castle3",
     src: `/castle3.png?v=${castleAssetVersion}`,
-    label: "东塔",
+    label: "Contact",
     originX: "69.9%",
     originY: "45.6%",
     glowOriginY: "50.7%",
@@ -799,13 +785,6 @@ function MapView({
         >
           <div className="map-plane-stage">
             <canvas ref={canvasRef} className="map-reveal-canvas" aria-hidden="true" />
-            {/* 底层地图“ABOUT ME”旗帜+塔楼的透明点击热区 → AboutView */}
-            <button
-              type="button"
-              className="castle-float-hit about-me-hit"
-              aria-label="About Me"
-              onClick={() => goTo("about")}
-            />
             {mapCastles.map((castle) => (
               <div
                 key={castle.id}
@@ -838,7 +817,15 @@ function MapView({
                   type="button"
                   className="castle-float-hit"
                   aria-label={castle.label}
-                  onClick={castle.id === "castle1" ? openPortfolio : undefined}
+                  onClick={
+                    castle.id === "castle1"
+                      ? openPortfolio
+                      : castle.id === "castle2"
+                        ? () => goTo("about")
+                        : castle.id === "castle3"
+                          ? () => goTo("contact")
+                          : undefined
+                  }
                   onPointerEnter={() => setHoveredCastle(castle.id)}
                   onPointerLeave={() => setHoveredCastle(null)}
                 />
@@ -848,25 +835,12 @@ function MapView({
         </div>
       </div>
       <div ref={fluoroRef} className="fluorescent-cursor" aria-hidden="true" />
-      <nav className={`map-gates${portfolioOpen ? " is-hidden" : ""}`} aria-label="页面通道">
-        <button type="button" className="map-gate" onClick={() => goTo("about")}>
-          <span className="map-gate-num">03</span>
-          <span className="map-gate-title">ABOUT ME</span>
-          <span className="map-gate-sub">THE CREATOR&apos;S RECORD</span>
-        </button>
-        <button type="button" className="map-gate" onClick={() => goTo("contact")}>
-          <span className="map-gate-num">04</span>
-          <span className="map-gate-title">CONTACT</span>
-          <span className="map-gate-sub">SEND A SIGNAL</span>
-        </button>
-      </nav>
       <div
         className={`map-scroll-hint${scrollHintVisible && !portfolioOpen ? "" : " is-dismissed"}`}
         aria-hidden={!entered || !scrollHintVisible || portfolioOpen}
       >
         <div className="map-scroll-hint-img" role="img" aria-label="" />
       </div>
-      <div className="map-compass" aria-hidden="true"><span>N</span><i /></div>
       <div className="map-scale">0 —— 100 —— 200M</div>
       <aside className={`project-dossier ${selected ? "is-visible" : ""}`} aria-hidden={!selected}>
         {selected && (
@@ -1223,52 +1197,19 @@ function ArchiveView({ project, close }: { project: Project; close: () => void }
   );
 }
 
-function AboutView() {
+function AboutView({ close }: { close: () => void }) {
   return (
     <main className="about-view">
       <ParticleField calm />
-      <div className="record-folder">
-        <div className="folder-tab">ABOUT ME / CREATOR&apos;S RECORD</div>
-        <div className="record-stamp">OPEN<br /><span>FOR COLLABORATION</span></div>
-        <div className="record-intro">
-          <p className="eyebrow">ABOUT ME</p>
-          <h1>Leah<br />— Spatial Designer</h1>
-          <p>
-            I design spaces that tell stories. My work sits where architecture,
-            atmosphere and narrative meet — building worlds that people can walk
-            through, feel, and remember.
-          </p>
-        </div>
-        <div className="portrait-reveal" aria-label="创作者抽象肖像">
-          <div className="ink-silhouette" />
-          <span>PORTRAIT / INK REVEAL</span>
-        </div>
-        <section className="record-section spellbook">
-          <p className="section-num">I. SPELL PROFICIENCY</p>
-          {[
-            ["Spatial Narratives", "MASTER", 96],
-            ["Rhino + Grasshopper", "ADVANCED", 86],
-            ["AutoCAD", "MASTER", 92],
-            ["Visual Direction", "ADVANCED", 88],
-          ].map(([name, rank, level]) => (
-            <div className="skill-row" key={String(name)}>
-              <span>{name}</span><b>{rank}</b><i><em style={{ width: `${level}%` }} /></i>
-            </div>
-          ))}
-        </section>
-        <section className="record-section journey">
-          <p className="section-num">II. PLACES OF PILGRIMAGE</p>
-          <div><b>2024 — PRESENT</b><h3>Independent Spatial Designer</h3><p>Shanghai / London / Remote</p></div>
-          <div><b>2022 — 2024</b><h3>Architectural Storytelling Lab</h3><p>Experimental environments & visual systems</p></div>
-          <div><b>2018 — 2022</b><h3>B.Arch / School of the Built Environment</h3><p>Architecture, media and urban ritual</p></div>
-        </section>
-        <div className="record-footer">SIGNED IN SILVER INK · LEAHVERSE · 2026</div>
+      <button type="button" className="view-exit" onClick={close} aria-label="返回主页">×</button>
+      <div className="about-pofile-frame" role="img" aria-label="pofile">
+        <img src="/pofile.jpg" alt="pofile" draggable={false} />
       </div>
     </main>
   );
 }
 
-function ContactView() {
+function ContactView({ close }: { close: () => void }) {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
 
@@ -1289,6 +1230,7 @@ function ContactView() {
   return (
     <main className="contact-view">
       <ParticleField calm />
+      <button type="button" className="view-exit" onClick={close} aria-label="返回主页">×</button>
       <div className="contact-folder">
         <div className="folder-tab">CONTACT / OPEN CHANNEL</div>
         <div className="contact-intro">
@@ -1445,8 +1387,8 @@ export default function Home() {
           }}
         />
       )}
-      {view === "about" && <AboutView />}
-      {view === "contact" && <ContactView />}
+      {view === "about" && <AboutView close={() => setView("map")} />}
+      {view === "contact" && <ContactView close={() => setView("map")} />}
       {showPortal && (
         <Portal
           onUnlock={playMusic}

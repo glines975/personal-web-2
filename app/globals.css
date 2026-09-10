@@ -668,9 +668,7 @@ button { border: 0; cursor: pointer; }
 .map-building.is-selected .layer-a { transform: translateZ(70px); border-color: var(--violet-bright); }
 .map-building.is-selected .layer-b { transform: translateZ(40px); border-color: rgba(177,155,220,.7); }
 .map-building.is-selected .layer-c { transform: translateZ(18px); }
-.map-compass { position: absolute; right: 6vw; bottom: 8vh; width: 74px; height: 74px; border: 1px solid var(--line); border-radius: 50%; display: grid; place-items: center; color: #686572; font: 8px var(--font-mono); }
-.map-compass i { height: 52px; width: 1px; background: linear-gradient(var(--violet-bright) 50%, rgba(200,199,210,.18) 50%); transform: rotate(25deg); }
-.map-compass span { position: absolute; top: -16px; }
+
 
 /* Featured Works — map blur + overlapping archive folders */
 .map-view.is-portfolio .map-plane-stage {
@@ -689,15 +687,6 @@ button { border: 0; cursor: pointer; }
 }
 .map-view.is-portfolio .castle-float-hit {
   pointer-events: none;
-}
-/* 底层地图左上“ABOUT ME”旗帜+塔楼的透明点击热区。
-   地图 plane 比视口宽（left ≈ -16% 视口），所以用相对于 plane 的
-   坐标；16% ≈ 视口左边缘附近，覆盖旗帜+塔楼。 */
-.about-me-hit {
-  left: 16.2% !important;
-  top: 1.8% !important;
-  width: 11.5% !important;
-  height: 14% !important;
 }
 
 .portfolio-overlay {
@@ -1230,6 +1219,29 @@ button { border: 0; cursor: pointer; }
   place-items: center;
 }
 .close-archive span { line-height: 1; }
+.view-exit {
+  position: fixed;
+  top: 22px;
+  right: 22px;
+  z-index: 40;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid rgba(200,199,210,.18);
+  border-radius: 0;
+  background: rgba(19,20,27,.88);
+  color: #a6a3ad;
+  font: 300 20px/1 var(--font-sans);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background .22s ease, border-color .22s ease, color .22s ease;
+}
+.view-exit:hover {
+  background: rgba(28,30,42,.95);
+  border-color: rgba(200,199,210,.3);
+  color: #fff;
+}
 
 @media (max-width: 720px) {
   .archive-topbar { top: 12px; padding-left: 12px; padding-right: 10px; height: 46px; }
@@ -1255,8 +1267,37 @@ button { border: 0; cursor: pointer; }
 
 /* About */
 .particle-field { position: fixed; inset: 0; z-index: 0; width: 100vw; height: 100vh; pointer-events: none; }
-.about-view { min-height: 100vh; padding: 16vh 8vw 12vh 18vw; position: relative; overflow: hidden; }
-.about-view .particle-field { opacity: .48; }
+.about-view {
+  min-height: 100vh;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #0d0e14;
+}
+.about-view .particle-field { opacity: .06; }
+.about-view .view-exit { position: fixed; z-index: 3; }
+.about-pofile-frame {
+  position: relative;
+  z-index: 2;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  overflow: hidden;
+}
+.about-pofile-frame img {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+  object-position: center;
+}
 .record-folder { position: relative; z-index: 3; width: min(1050px, 90%); min-height: 1000px; padding: clamp(45px,7vw,92px); background: rgba(19,20,27,.91); border: 1px solid rgba(200,199,210,.17); box-shadow: 0 40px 140px #000, inset 0 0 90px rgba(0,0,0,.22); }
 .record-folder::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(200,199,210,.045); pointer-events: none; }
 .folder-tab { position: absolute; top: -34px; left: -1px; padding: 13px 30px; background: #171820; border: 1px solid rgba(200,199,210,.16); border-bottom: 0; font: 7px var(--font-mono); letter-spacing: .24em; }
