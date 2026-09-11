@@ -1199,11 +1199,11 @@ function ArchiveView({ project, close }: { project: Project; close: () => void }
 
 function AboutView({ close }: { close: () => void }) {
   return (
-    <main className="about-view">
+    <main className="about-view about-me-bg">
       <ParticleField calm />
       <button type="button" className="view-exit" onClick={close} aria-label="返回主页">×</button>
-      <div className="about-pofile-frame" role="img" aria-label="pofile">
-        <img src="/pofile.jpg" alt="pofile" draggable={false} />
+      <div className="about-full-bg" role="img" aria-label="about me">
+        <img src="/about-me.png" alt="about me" draggable={false} />
       </div>
     </main>
   );

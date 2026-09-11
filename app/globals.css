@@ -1279,25 +1279,24 @@ button { border: 0; cursor: pointer; }
 }
 .about-view .particle-field { opacity: .06; }
 .about-view .view-exit { position: fixed; z-index: 3; }
-.about-pofile-frame {
-  position: relative;
-  z-index: 2;
+/* About Me 全屏平铺底图：图片铺满显示器页面 */
+.about-me-bg { background: #e9ddc7; }
+.about-full-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   width: 100vw;
   height: 100vh;
-  display: grid;
-  place-items: center;
-  border: 0;
-  box-shadow: none;
-  background: transparent;
   overflow: hidden;
 }
-.about-pofile-frame img {
+.about-full-bg img {
   display: block;
   width: 100vw;
   height: 100vh;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
+.about-me-bg .view-exit { z-index: 3; }
 .record-folder { position: relative; z-index: 3; width: min(1050px, 90%); min-height: 1000px; padding: clamp(45px,7vw,92px); background: rgba(19,20,27,.91); border: 1px solid rgba(200,199,210,.17); box-shadow: 0 40px 140px #000, inset 0 0 90px rgba(0,0,0,.22); }
 .record-folder::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(200,199,210,.045); pointer-events: none; }
 .folder-tab { position: absolute; top: -34px; left: -1px; padding: 13px 30px; background: #171820; border: 1px solid rgba(200,199,210,.16); border-bottom: 0; font: 7px var(--font-mono); letter-spacing: .24em; }
