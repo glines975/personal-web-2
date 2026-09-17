@@ -321,9 +321,9 @@ const mapCastles = [
 
 /* portfolio cover1–5 share one 3508×3000 canvas; transparent gaps + left-on-top z-order
    recreate portfolio cover.png. Hit strips are the exclusive visible columns L→R.
-   cover6 sits behind as the archive backdrop. */
-const folderAssetVersion = "20260906a";
-const folderBackdropSrc = `/portfolio cover6.png?v=${folderAssetVersion}`;
+   cover6.jpg sits behind as the archive backdrop (2000×1710, lighter than the png). */
+const folderAssetVersion = "20260918a";
+const folderBackdropSrc = `/portfolio cover6.jpg?v=${folderAssetVersion}`;
 const folderThemes = [
   { src: `/portfolio cover1.png?v=${folderAssetVersion}`, label: "ARCHIVE LOG", ink: "#4c2b21", hit: { left: "0%", width: "19.5%" } },
   { src: `/portfolio cover2.png?v=${folderAssetVersion}`, label: "CLIFF CHURCH", ink: "#2b2218", hit: { left: "19.5%", width: "18.5%" } },
@@ -333,8 +333,8 @@ const folderThemes = [
 ] as const;
 
 /* Page 2 mirrors page 1 for now — replace these paths when new art is ready. */
-const folderPage2AssetVersion = "20260906a";
-const folderPage2BackdropSrc = `/portfolio cover6.png?v=${folderPage2AssetVersion}`;
+const folderPage2AssetVersion = "20260918a";
+const folderPage2BackdropSrc = `/portfolio cover6.jpg?v=${folderPage2AssetVersion}`;
 const folderPage2Themes = folderThemes.map((theme) => ({
   ...theme,
   src: theme.src.replace(folderAssetVersion, folderPage2AssetVersion),
