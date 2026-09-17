@@ -221,14 +221,7 @@ function Portal({
   onUnlock: () => void;
   onOpening: () => void;
 }) {
-  const [phase, setPhase] = useState<"cover" | "ready" | "zooming" | "opening">("cover");
-  const [cover2Visible, setCover2Visible] = useState(false);
-  const [cover3Visible, setCover3Visible] = useState(false);
-  const [assetsReady, setAssetsReady] = useState(false);
-  const timersRef = useRef<number[]>([]);
-  const finishingRef = useRef(false);
-
-  // Latest callbacks via refs so the timing effect below runs exactly once.
+  // 新开场三幕：左下→右上显影 → leahverse 铭牌流光 → 铭牌中心向四周溶解进地图。
   const onEnterRef = useRef(onEnter);
   const onUnlockRef = useRef(onUnlock);
   const onOpeningRef = useRef(onOpening);
@@ -238,99 +231,48 @@ function Portal({
     onOpeningRef.current = onOpening;
   });
 
-  // The cover art streams in slowly on a cold CDN (cover1 alone is ~1.5MB).
-  // Hold the choreography until all three covers are decoded, otherwise the
-  // tiny cover2/cover3 appear before cover1 and the sequence desyncs.
-  // The paper bed is gated on the same signal so background and animation
-  // share one initial moment — no band appearing ahead of the art.
-  useEffect(() => {
-    let cancelled = false;
-    const fallback = window.setTimeout(() => setAssetsReady(true), 9000);
-    void Promise.all(
-      [...coverSources, `/cover1-paper-tile.jpg?v=${paperAssetVersion}`].map(
-        (src) =>
-          new Promise<void>((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve();
-            img.onerror = () => resolve();
-            img.src = src;
-          }),
-      ),
-    ).then(() => {
-      if (cancelled) return;
-      window.clearTimeout(fallback);
-      setAssetsReady(true);
-      // Use the ~11s intro to warm the map layers so the first map frame is
-      // complete instead of castles floating over blank paper.
-      ["/footprint.png", "/overlay.png"].forEach((src) => {
-        const img = new Image();
-        img.src = src;
-      });
-    });
-    return () => {
-      cancelled = true;
-      window.clearTimeout(fallback);
-    };
-  }, []);
+  const timersRef = useRef<number[]>([]);
+  const finishedRef = useRef(false);
 
-  useEffect(() => {
-    if (!assetsReady || finishingRef.current) return;
-    // Footprints start the moment the sheet appears (background and animation
-    // share the same initial time), run 10.5s (last 0.5s = hold after gone)
-    const COVER2_START = 0;
-    const COVER2_DURATION = 10500;
-    const FOOTPRINTS_END = COVER2_START + COVER2_DURATION;
-    // Leah starts a bit earlier so her reveal feels faster
-    const COVER3_START = 2400;
+  // 单幕：扫光 6s 内完成（+0.8s 收尾），播完即进地图
+  const INTRO_MS = 6600;
 
-    const timers = [
-      window.setTimeout(() => setCover2Visible(true), COVER2_START),
-      window.setTimeout(() => setCover3Visible(true), COVER3_START),
-      window.setTimeout(() => setPhase("ready"), COVER3_START),
-      // Music starts when cover3 appears
-      window.setTimeout(() => onUnlockRef.current(), COVER3_START),
-      // Switch after footprints finish + 0.5s end hold baked into cover2
-      window.setTimeout(() => onOpeningRef.current(), FOOTPRINTS_END),
-      window.setTimeout(() => onEnterRef.current(), FOOTPRINTS_END + 200),
-    ];
-    timersRef.current = timers;
-    return () => {
-      timers.forEach((id) => window.clearTimeout(id));
-      timersRef.current = [];
-    };
-  }, [assetsReady]);
-
-  const finishToMap = (delayMs: number) => {
-    if (finishingRef.current) return;
-    finishingRef.current = true;
+  const finishToMap = () => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     timersRef.current.forEach((id) => window.clearTimeout(id));
     timersRef.current = [];
-    setPhase("opening");
+    // 音乐在首个用户手势后播放（浏览器自动播放策略）
     onUnlockRef.current();
     onOpeningRef.current();
-    window.setTimeout(() => onEnterRef.current(), delayMs);
+    window.setTimeout(() => onEnterRef.current(), 350);
   };
 
-  // Click anytime during the opening sequence to skip into the map.
-  const skipOpening = () => {
-    if (phase === "opening") return;
-    finishToMap(420);
-  };
+  useEffect(() => {
+    const img = new Image();
+    img.decoding = "async";
+    img.src = "/intro-bg.png";
+    timersRef.current = [
+      window.setTimeout(finishToMap, INTRO_MS + 350),
+    ];
+    return () => {
+      timersRef.current.forEach((id) => window.clearTimeout(id));
+      timersRef.current = [];
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <main className={`portal is-${phase}${phase === "opening" ? " is-opening" : ""}${assetsReady ? " portal-is-ready" : ""}`}>
+    <main className="portal portal-intro" aria-label="开场">
+      <div className="intro-stage">
+        <div className="intro-reveal" aria-hidden="true" />
+        <div className="intro-goldflow" aria-hidden="true" />
+      </div>
       <button
-        className="sealed-scroll"
-        onClick={skipOpening}
+        className="intro-skip"
+        onClick={finishToMap}
         aria-label="点击跳过开场，进入主页"
-      >
-        <span
-          className={`portal-cover portal-cover-1${assetsReady ? " is-visible" : ""}`}
-          aria-hidden="true"
-        />
-        <span className={`portal-cover portal-cover-2 ${cover2Visible ? "is-visible" : ""}`} aria-hidden="true" />
-        <span className={`portal-cover portal-cover-3 ${cover3Visible ? "is-visible" : ""}`} aria-hidden="true" />
-      </button>
+      />
     </main>
   );
 }
@@ -399,14 +341,9 @@ const folderPage2Themes = folderThemes.map((theme) => ({
   src: theme.src.replace(folderAssetVersion, folderPage2AssetVersion),
 }));
 
-/* Portal cover art — keep the ?v= strings in sync with globals.css. */
-const coverAssetVersion = "20260906a";
+/* 新开场动画占位：cover 素材按需加载，老 Portal 的 asset gate 已移除。 */
 const paperAssetVersion = "20260906d";
-const coverSources = [
-  `/cover1.png?v=${coverAssetVersion}`,
-  `/cover2.png?v=${coverAssetVersion}`,
-  `/cover3.png?v=${coverAssetVersion}`,
-];
+const coverSources: string[] = [];
 
 function MapView({
   selected,
