@@ -234,8 +234,8 @@ function Portal({
   const timersRef = useRef<number[]>([]);
   const finishedRef = useRef(false);
 
-  // 单幕：扫光 6s 内完成（+0.8s 收尾），播完即进地图
-  const INTRO_MS = 6600;
+  // 单幕：开场即扫，扫光 8s 内完成（0.75x 速，+0.8s 收尾），播完即进地图
+  const INTRO_MS = 8600;
 
   const finishToMap = () => {
     if (finishedRef.current) return;
@@ -266,7 +266,6 @@ function Portal({
     <main className="portal portal-intro" aria-label="开场">
       <div className="intro-stage">
         <div className="intro-reveal" aria-hidden="true" />
-        <div className="intro-goldflow" aria-hidden="true" />
       </div>
       <button
         className="intro-skip"

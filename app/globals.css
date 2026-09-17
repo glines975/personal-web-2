@@ -140,19 +140,48 @@ button { border: 0; cursor: pointer; }
 /* 新开场三幕：开场底图左下→右上显影 → leahverse 铭牌流光 → 铭牌中心溶解进地图。
    底图 1434×1097 (aspect 1.307)，cover 铺满视口；嫌整屏 skip 太抢可再加提示。 */
 .portal-intro { background: #101319; }
+/* 第一幕：截图那版 —— 单层剪贴扫光。
+   本体：135° 单色暖金渐变（46% 透明→50% .5→54% 透明），280%，8s 走完。
+   剪贴：intro-gold-mask.png（alpha<60 二值，27.92% 透、纸纯黑），
+   cover/center，alpha 模式，全程静态。DOM 只有一层，无 goldflow。 */
 .intro-stage {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  background: url("/intro-bg.png") center center / cover no-repeat;
+  background-color: #101319;
 }
-/* 第一幕：底图直接呈现（原色，不做显影）。线稿正片叠底后再扫描线。 */
 .intro-reveal {
   position: absolute;
   inset: 0;
-  background: url("/intro-bg.png") center center / cover no-repeat;
-  background-color: #101319;
-  opacity: 1;
+  background: linear-gradient(135deg,
+    rgba(255, 200, 120, 0) 46%,
+    rgba(255, 200, 120, .5) 50%,
+    rgba(255, 200, 120, 0) 54%);
+  background-size: 280% 280%;
+  background-position: 100% 100%;
+  -webkit-mask-image: url("/intro-gold-mask.png");
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-mode: alpha;
+  mask-image: url("/intro-gold-mask.png");
+  mask-size: cover;
+  mask-position: center;
+  mask-mode: alpha;
+  mix-blend-mode: screen;
+  filter: blur(3px) drop-shadow(0 0 6px rgba(255, 195, 110, .9)) drop-shadow(0 0 16px rgba(255, 170, 60, .5));
+  opacity: 0;
+  animation:
+    intro-clip-in .15s ease 0s forwards,
+    intro-clip-sweep 8s linear 0s forwards,
+    intro-clip-out .8s ease 7.3s forwards;
 }
+@keyframes intro-clip-in { to { opacity: 1; } }
+@keyframes intro-clip-sweep {
+  from { background-position: 100% 100%; }
+  to { background-position: 0% 0%; }
+}
+@keyframes intro-clip-out { to { opacity: 0; } }
 /* 线稿正片叠底层：intro-line.png 以 multiply 融合压在底图上，深色线条
    沉进纸面、浅色纸底被底图吃掉 —— 线与纸融为一张图，不是浮在上面的描边。 */
 .intro-line-base {
@@ -171,11 +200,10 @@ button { border: 0; cursor: pointer; }
   from { -webkit-mask-position: 0% 100%; mask-position: 0% 100%; }
   to { -webkit-mask-position: 0% 100%; mask-position: 0% 100%; }
 }
-/* 第一幕：线稿剪贴扫光 —— 扫光本体是一道对角暖金渐变，
-   被干净线稿（intro-line-cut.png：着墨线保留原 alpha，
-   纸面雾与纸一律 alpha=0）剪住。光带本身透明处就是透明，
-   再叠一层线稿 mask —— 只有“带内 + 线上”才亮，纸面不可能亮。
-   6s 左上→右下游走。带宽收到 3%，扫过像描线不像洗面。 */
+/* 第一幕：线稿剪贴扫光（去放大感版） —— 扫光本体是一道对角暖金渐变，
+   被干净线稿（intro-line-cut.png）剪住。0.5s 后起扫，6s 左上→右下。
+   去放大感三刀：峰值 1→.7（亮差别顶满，辐照错觉），
+   drop-shadow 5px→2px（晕不糊线），带宽维持 3% 窄带。 */
 .intro-goldflow {
   position: absolute;
   inset: 0;
@@ -183,9 +211,9 @@ button { border: 0; cursor: pointer; }
   opacity: 0;
   background: linear-gradient(135deg,
     rgba(120, 70, 20, 0) 46%,
-    rgba(255, 178, 80, .55) 48.5%,
-    rgba(255, 220, 145, 1) 50%,
-    rgba(255, 178, 80, .55) 51.5%,
+    rgba(255, 178, 80, .4) 48.5%,
+    rgba(255, 214, 135, .7) 50%,
+    rgba(255, 178, 80, .4) 51.5%,
     rgba(120, 70, 20, 0) 54%);
   background-size: 280% 280%;
   background-position: 100% 100%;
@@ -198,11 +226,11 @@ button { border: 0; cursor: pointer; }
   mask-position: center;
   mask-mode: alpha;
   mix-blend-mode: screen;
-  filter: drop-shadow(0 0 5px rgba(255, 195, 110, .85));
+  filter: drop-shadow(0 0 2px rgba(255, 195, 110, .7));
   animation:
-    intro-goldflow-in .2s ease 0s forwards,
-    intro-goldflow-sweep 6s linear 0s forwards,
-    intro-goldflow-out .8s ease 5.3s forwards;
+    intro-goldflow-in .2s ease .2s forwards,
+    intro-goldflow-sweep 6s linear .2s forwards,
+    intro-goldflow-out .8s ease 5.5s forwards;
 }
 @keyframes intro-goldflow-in { to { opacity: 1; } }
 @keyframes intro-goldflow-sweep {
