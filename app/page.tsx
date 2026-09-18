@@ -262,6 +262,14 @@ function Portal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 每次回到地图都重播 0.6s 的清晰化（首挂载沿用原 2.4s 完整进场）。
+  useEffect(() => {
+    if (view !== "map") return;
+    setTransitionComplete(false);
+    const t = window.setTimeout(() => setTransitionComplete(true), 600);
+    return () => window.clearTimeout(t);
+  }, [view]);
+
   return (
     <main className="portal portal-intro" aria-label="开场">
       <div className="intro-stage">
@@ -1312,6 +1320,25 @@ export default function Home() {
     window.scrollTo(0, 0);
   };
 
+  // 地图常驻预热：首屏挂载时（开场动画期间）就把底图双层与城堡全部解码，
+  // 进入主页 / 从关于我返回时底图与热点已就绪，不再现下现画。
+  // MapView 自身常驻挂载（非 map 时仅视觉隐藏），canvas 与图片缓存不销毁，
+  // 返回主页不再重走 2.4s 模糊进场。
+  useEffect(() => {
+    const sources = [
+      "/footprint.png",
+      "/overlay.png",
+      "/castle1.png",
+      "/castle2.png",
+      "/castle3.png",
+    ];
+    sources.forEach((src) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = src;
+    });
+  }, []);
+
   return (
     <div className="lumen-app">
       <audio ref={audioRef} src="/bg-music-96.mp3" loop preload="metadata" playsInline />
@@ -1324,7 +1351,12 @@ export default function Home() {
         setMenuOpen={setMenuOpen}
         goTo={goTo}
       />
-      {view === "map" && (
+      {view === "about" && <AboutView close={() => setView("map")} />}
+      {view === "contact" && <ContactView close={() => setView("map")} />}
+      <div
+        aria-hidden={view !== "map"}
+        style={{ display: view === "map" ? undefined : "none" }}
+      >
         <MapView
           selected={selected}
           setSelected={setSelected}
@@ -1333,7 +1365,7 @@ export default function Home() {
           setPortfolioOpen={setPortfolioOpen}
           goTo={goTo}
         />
-      )}
+      </div>
       {view === "archive" && (
         <ArchiveView
           project={archiveProject}

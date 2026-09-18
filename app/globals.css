@@ -865,7 +865,7 @@ button { border: 0; cursor: pointer; }
 .map-plane-stage {
   position: absolute; inset: 0;
   filter: blur(6px);
-  transition: filter 2.4s cubic-bezier(.22,.61,.36,1);
+  transition: filter .6s cubic-bezier(.22,.61,.36,1);
   will-change: filter;
 }
 .map-view.is-entered .map-plane-stage {
