@@ -170,13 +170,11 @@ button { border: 0; cursor: pointer; }
   mask-mode: alpha;
   mix-blend-mode: screen;
   filter: blur(3px) drop-shadow(0 0 6px rgba(255, 195, 110, .9)) drop-shadow(0 0 16px rgba(255, 170, 60, .5));
-  opacity: 0;
+  opacity: 1;
   animation:
-    intro-clip-in .15s ease 0s forwards,
     intro-clip-sweep 8s linear 0s forwards,
-    intro-clip-out .8s ease 7.3s forwards;
+    intro-clip-out .53s ease 7.47s forwards;
 }
-@keyframes intro-clip-in { to { opacity: 1; } }
 @keyframes intro-clip-sweep {
   from { background-position: 100% 100%; }
   to { background-position: 0% 0%; }
@@ -1768,6 +1766,16 @@ button { border: 0; cursor: pointer; }
   object-position: center;
 }
 .about-me-bg .view-exit { z-index: 3; }
+/* About Me 返回键：复用作品集页的箭头样式，常驻右上角 */
+.about-view .portfolio-mark-back {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  color: #4e2d27;
+}
 .record-folder { position: relative; z-index: 3; width: min(1050px, 90%); min-height: 1000px; padding: clamp(45px,7vw,92px); background: rgba(19,20,27,.91); border: 1px solid rgba(200,199,210,.17); box-shadow: 0 40px 140px #000, inset 0 0 90px rgba(0,0,0,.22); }
 .record-folder::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(200,199,210,.045); pointer-events: none; }
 .folder-tab { position: absolute; top: -34px; left: -1px; padding: 13px 30px; background: #171820; border: 1px solid rgba(200,199,210,.16); border-bottom: 0; font: 7px var(--font-mono); letter-spacing: .24em; }

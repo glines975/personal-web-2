@@ -234,8 +234,8 @@ function Portal({
   const timersRef = useRef<number[]>([]);
   const finishedRef = useRef(false);
 
-  // 单幕：开场即扫，扫光 8s 内完成（0.75x 速，+0.8s 收尾），播完即进地图
-  const INTRO_MS = 8600;
+  // 单幕：开场即扫，扫光 8s 内完成（0.75x 速），淡入淡出与切页按 2/3 压缩
+  const INTRO_MS = 8333;
 
   const finishToMap = () => {
     if (finishedRef.current) return;
@@ -245,7 +245,7 @@ function Portal({
     // 音乐在首个用户手势后播放（浏览器自动播放策略）
     onUnlockRef.current();
     onOpeningRef.current();
-    window.setTimeout(() => onEnterRef.current(), 350);
+    window.setTimeout(() => onEnterRef.current(), 233);
   };
 
   useEffect(() => {
@@ -322,7 +322,7 @@ const mapCastles = [
 /* portfolio cover1–5 share one 3508×3000 canvas; transparent gaps + left-on-top z-order
    recreate portfolio cover.png. Hit strips are the exclusive visible columns L→R.
    cover6.jpg sits behind as the archive backdrop (2000×1710, lighter than the png). */
-const folderAssetVersion = "20260918a";
+const folderAssetVersion = "20260918b";
 const folderBackdropSrc = `/portfolio cover6.jpg?v=${folderAssetVersion}`;
 const folderThemes = [
   { src: `/portfolio cover1.png?v=${folderAssetVersion}`, label: "ARCHIVE LOG", ink: "#4c2b21", hit: { left: "0%", width: "19.5%" } },
@@ -333,7 +333,7 @@ const folderThemes = [
 ] as const;
 
 /* Page 2 mirrors page 1 for now — replace these paths when new art is ready. */
-const folderPage2AssetVersion = "20260918a";
+const folderPage2AssetVersion = "20260918b";
 const folderPage2BackdropSrc = `/portfolio cover6.jpg?v=${folderPage2AssetVersion}`;
 const folderPage2Themes = folderThemes.map((theme) => ({
   ...theme,
@@ -1137,7 +1137,27 @@ function AboutView({ close }: { close: () => void }) {
   return (
     <main className="about-view about-me-bg">
       <ParticleField calm />
-      <button type="button" className="view-exit" onClick={close} aria-label="返回主页">×</button>
+      <button
+        type="button"
+        className="portfolio-mark portfolio-mark-back about-back"
+        onClick={close}
+        aria-label="返回主页面"
+      >
+        <svg viewBox="0 0 52 40" aria-hidden="true">
+          <path
+            d="M42 34 V18 A14 14 0 0 0 28 4 H16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8 4 L26 -1.2 V9.2 Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
       <div className="about-full-bg" role="img" aria-label="about me">
         <img src="/about-me.png" alt="about me" draggable={false} />
       </div>
